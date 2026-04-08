@@ -2,9 +2,9 @@
 const Job = require("../models/Job.model");
 
 const verifyJobOwnership = (req, res, next) => {
-  const { id } = req.params; // El ID del Job que viene en la URL
+ const jobId = req.params.id || req.params.jobId; // El ID del Job que viene en la URL
 
-  Job.findById(id)
+  Job.findById(jobId)
     .then((foundJob) => {
       if (!foundJob) {
         return res.status(404).json({ message: "Job no encontrado" });
