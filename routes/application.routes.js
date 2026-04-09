@@ -3,18 +3,33 @@ const Application = require("../models/Application.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const { isIronhacker, isCompany, verifyJobOwnership } = require("../middleware/route-guard.middleware");
 
-// 1. POST /api/applications - Aplicar a una oferta
-// Solo accesible para IRONHACKERS
+// 1 POST /api/applications - Aplicar a una oferta
 router.post("/applications", isAuthenticated, isIronhacker, (req, res, next) => {
-  const { job, message } = req.body;
-  const applicant = req.payload._id; // ID del Ironhacker 
+  const { job, message } = req.body; // 'job' es el ID del puesto
+  const applicant = req.payload._id;
 
-  Application.create({ job, applicant, message })
-    .then((newApp) => res.status(201).json(newApp))
+  // 1. Verificación Crítica: ¿Existe el Job?
+  Job.findById(job)
+    .then((foundJob) => {
+      if (!foundJob) {
+        // Si el job no existe, devolvemos error 404 y NO creamos la aplicación
+        return res.status(404).json({ message: "La oferta de trabajo ya no existe." });
+      }
+
+      //Está la oferta activa
+      if (!foundJob.active) {
+        return res.status(400).json({ message: "Esta oferta ya no acepta más aplicaciones." });
+      }
+
+      // Si todo está bien, procedemos a crear la aplicación
+      return Application.create({ job, applicant, message });
+    })
+    .then((newApp) => {
+      if (newApp) res.status(201).json(newApp);
+    })
     .catch((err) => {
-      // Si el error es por el índice único (ya aplicó)
       if (err.code === 11000) {
-        return res.status(400).json({ message: "Ya has aplicado a esta oferta anteriormente." });
+        return res.status(400).json({ message: "Ya has aplicado a esta oferta." });
       }
       next(err);
     });
