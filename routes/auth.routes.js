@@ -133,7 +133,44 @@ router.post("/login", (req, res, next) => {
         res.status(401).json({ message: "Unable to authenticate the user" });
       }
     })
-    .catch((err) => next(err)); 
+    .catch((err) => next(err));
+});
+
+// PUT /auth/update - Actualiza los datos del usuario logueado
+router.put("/update", isAuthenticated, (req, res, next) => {
+  const userId = req.payload._id;
+  const {
+    firstName,
+    lastName,
+    bootcamp,
+    campus,
+    portfolioUrl,
+    linkedinUrl, // Ironhacker
+    companyName,
+    website,
+    logo, // Company
+  } = req.body;
+
+  // Filtramos para no guardar campos undefined
+  const updateData = {
+    firstName,
+    lastName,
+    bootcamp,
+    campus,
+    portfolioUrl,
+    linkedinUrl,
+    companyName,
+    website,
+    logo,
+  };
+
+  User.findByIdAndUpdate(userId, updateData, { new: true })
+    .then((updatedUser) => {
+      // Omitimos el password por seguridad al responder
+      const { _id, email, role, firstName, companyName } = updatedUser;
+      res.status(200).json({ _id, email, role, firstName, companyName });
+    })
+    .catch((err) => next(err));
 });
 
 // GET  /auth/verify  -  Used to verify JWT stored on the client
