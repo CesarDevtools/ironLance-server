@@ -16,6 +16,12 @@ const jobSchema = new Schema(
       type: String,
       default: "Negotiable.",
     },
+    level: {
+      type: String,
+      enum: ["Entry", "Intermediate", "Expert"],
+      default: "Intermediate",
+      required: true
+    },
     location: {
       type: String,
       default: "Remote",
@@ -29,6 +35,9 @@ const jobSchema = new Schema(
       type: Boolean,
       default: true,
     },
+  },
+  {
+    timestamps: true // Esto añade automáticamente createdAt y updatedAt
   }
 );
 

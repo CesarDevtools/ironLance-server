@@ -28,10 +28,10 @@ router.get("/jobs/:id", (req, res, next) => {
 
 // POST /api/jobs - Crear oferta (Solo Empresas)
 router.post("/jobs", isAuthenticated, isCompany, (req, res, next) => {
-  const { title, description, requirements, salary, location } = req.body;
+  const { title, description, requirements, salary, location,level } = req.body;
   const owner = req.payload._id; // El ID del token JWT
 
-  Job.create({ title, description, requirements, salary, location, owner })
+  Job.create({ title, description, requirements, salary, location, level, owner })
     .then((newJob) => res.status(201).json(newJob))
     .catch((err) => next(err));
 });
@@ -40,7 +40,7 @@ router.post("/jobs", isAuthenticated, isCompany, (req, res, next) => {
 router.put("/jobs/:id", isAuthenticated, isCompany, verifyJobOwnership, (req, res, next) => {
   const { id } = req.params;
 
-  Job.findByIdAndUpdate(id, req.body, { new: true })
+  Job.findByIdAndUpdate(id, req.body, { new: true, runValidators: true })
     .then((updatedJob) => res.status(200).json(updatedJob))
     .catch((err) => next(err));
 });

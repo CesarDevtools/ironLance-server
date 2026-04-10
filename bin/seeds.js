@@ -46,21 +46,32 @@ const jobsRaw = [
     description: "Buscamos graduados con pasión por MERN Stack y ganas de crecer en un entorno dinámico.",
     requirements: ["React", "Node.js", "Express", "MongoDB"],
     salary: "28,000€ - 32,000€",
-    location: "Remote"
+    location: "Remote",
+    level: "Entry" // <--- Añadido
   },
   {
     title: "UX/UI Designer",
     description: "Únete a nuestro equipo de diseño para crear interfaces increíbles usando Figma y Mantine.",
     requirements: ["Figma", "Mantine UI", "User Research"],
     salary: "30,000€",
-    location: "Madrid"
+    location: "Madrid",
+    level: "Intermediate" // <--- Añadido
   },
   {
     title: "Node.js Backend Engineer",
     description: "Especialista en escalabilidad y arquitectura de microservicios.",
     requirements: ["Node.js", "Redis", "Docker"],
-    salary: "40,000€",
-    location: "Barcelona"
+    salary: "45,000€",
+    location: "Barcelona",
+    level: "Expert" // <--- Añadido
+  },
+  {
+    title: "AI Consultant",
+    description: "Ayuda a empresas a integrar soluciones de IA Generativa y optimizar flujos de trabajo.",
+    requirements: ["OpenAI API", "Python", "Prompt Engineering"],
+    salary: "Negotiable",
+    location: "Remote",
+    level: "Intermediate" // <--- Añadido
   }
 ];
 
@@ -68,13 +79,11 @@ mongoose
   .connect(MONGO_URI)
   .then((x) => {
     console.log(`Conectado a la DB: "${x.connections[0].name}"`);
-    
-    // 1. LIMPIEZA TOTAL: Borramos usuarios, trabajos Y aplicaciones
     console.log("Limpiando base de datos completa...");
     return Promise.all([
       User.deleteMany(), 
       Job.deleteMany(), 
-      Application.deleteMany() // <--- Limpia las huérfanas
+      Application.deleteMany()
     ]);
   })
   .then(() => {
@@ -82,8 +91,8 @@ mongoose
     return User.create(users);
   })
   .then((createdUsers) => {
-    //lógica de creación de Jobs con owners 
     const companies = createdUsers.filter(u => u.role === "COMPANY");
+    
     const jobsWithOwners = jobsRaw.map((job, index) => {
       const ownerCompany = companies[index % companies.length];
       return { ...job, owner: ownerCompany._id };
@@ -92,7 +101,7 @@ mongoose
     return Job.create(jobsWithOwners);
   })
   .then((createdJobs) => {
-    console.log(`¡Éxito! Creados ${createdJobs.length} puestos y base de datos saneada.`);
+    console.log(`¡Éxito! Creados ${createdJobs.length} puestos con sus niveles y base de datos saneada.`);
   })
   .catch((err) => {
     console.error("Error en el seed: ", err);
