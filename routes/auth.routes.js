@@ -136,39 +136,59 @@ router.post("/login", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-// PUT /auth/update - Actualiza los datos del usuario logueado
+// PUT /auth/update - Actualiza los datos y genera un nuevo token
 router.put("/update", isAuthenticated, (req, res, next) => {
   const userId = req.payload._id;
   const {
-    firstName,
+    firstName, 
     lastName,
+    about, 
     bootcamp,
     campus,
     portfolioUrl,
-    linkedinUrl, // Ironhacker
-    companyName,
+    linkedinUrl, 
+    companyName, 
     website,
-    logo, // Company
+    logo, 
   } = req.body;
 
-  // Filtramos para no guardar campos undefined
-  const updateData = {
-    firstName,
-    lastName,
-    bootcamp,
-    campus,
-    portfolioUrl,
-    linkedinUrl,
-    companyName,
-    website,
-    logo,
-  };
-
-  User.findByIdAndUpdate(userId, updateData, { new: true })
+  // 1. Actualizamos el usuario
+  User.findByIdAndUpdate(
+    userId,
+    {
+      firstName,
+      lastName,
+      about,
+      bootcamp,
+      campus,
+      portfolioUrl,
+      linkedinUrl,
+      companyName,
+      website,
+      logo,
+    },
+    { new: true, runValidators: true },
+  )
     .then((updatedUser) => {
-      // Omitimos el password por seguridad al responder
+      // 2. Extraemos los datos necesarios para el NUEVO payload
       const { _id, email, role, firstName, companyName } = updatedUser;
-      res.status(200).json({ _id, email, role, firstName, companyName });
+
+      // 3. Creamos el nuevo payload 
+      const payload = {
+        _id,
+        email,
+        role,
+        name: role === "IRONHACKER" ? firstName : companyName,
+      };
+
+      // 4. Firmamos el nuevo token
+      const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+        algorithm: "HS256",
+        expiresIn: "6h",
+      });
+
+      // 5. Enviamos el nuevo token al frontend
+      res.status(200).json({ authToken: authToken });
     })
     .catch((err) => next(err));
 });
