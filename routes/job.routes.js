@@ -16,7 +16,7 @@ router.get("/jobs/:id", (req, res, next) => {
   const { id } = req.params;
 
   Job.findById(id)
-    .populate("owner", "companyName logo website") 
+    .populate("owner", "companyName logo website about") 
     .then((job) => {
       if (!job) {
         return res.status(404).json({ message: "Puesto no encontrado" });

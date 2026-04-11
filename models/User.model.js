@@ -14,6 +14,10 @@ const userSchema = new Schema({
     enum: ["IRONHACKER", "COMPANY"],
     required: true,
   },
+  about: { 
+    type: String, 
+    maxLength: 3000
+  },
   // Campos para Ironhackers
   firstName: String,
   lastName: String,
@@ -21,9 +25,13 @@ const userSchema = new Schema({
     type: String,
     enum: [
       "Web Development",
-      "UX/UI",
-      "Cloud Engineer",
-      "Data Science and Machine Learning",
+      "UX/UI Design",
+      "Cloud Engineering",
+      "Machine Learning",
+      "Data Analytics",
+      "AI Consultant",
+      "Cybersecurity",
+      "Data Engineering"
     ],
   },
   campus: { type: String, enum: ["Madrid", "Barcelona", "Remote"] },
@@ -36,5 +44,4 @@ const userSchema = new Schema({
 });
 
 const User = model("User", userSchema);
-
 module.exports = User;
