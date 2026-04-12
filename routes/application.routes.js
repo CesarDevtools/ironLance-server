@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Application = require("../models/Application.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const { isIronhacker, isCompany, verifyJobOwnership } = require("../middleware/route-guard.middleware");
+const Job = require("../models/Job.model");
 
 // 1 POST /api/applications - Aplicar a una oferta
 router.post("/applications", isAuthenticated, isIronhacker, (req, res, next) => {
@@ -13,12 +14,12 @@ router.post("/applications", isAuthenticated, isIronhacker, (req, res, next) => 
     .then((foundJob) => {
       if (!foundJob) {
         // Si el job no existe, devolvemos error 404 y NO creamos la aplicación
-        return res.status(404).json({ message: "La oferta de trabajo ya no existe." });
+        return res.status(404).json({ message: "This job offer no longer exists." });
       }
 
       //Está la oferta activa
       if (!foundJob.active) {
-        return res.status(400).json({ message: "Esta oferta ya no acepta más aplicaciones." });
+        return res.status(400).json({ message: "This job offer is no longer accepting applications." });
       }
 
       // Si todo está bien, procedemos a crear la aplicación
@@ -29,7 +30,7 @@ router.post("/applications", isAuthenticated, isIronhacker, (req, res, next) => 
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return res.status(400).json({ message: "Ya has aplicado a esta oferta." });
+        return res.status(400).json({ message: "You have already applied for this job offer." });
       }
       next(err);
     });
@@ -68,12 +69,12 @@ router.put("/applications/:id", isAuthenticated, isCompany, (req, res, next) => 
     .populate("job")
     .then((foundApp) => {
       if (!foundApp) {
-        return res.status(404).json({ message: "Aplicación no encontrada" });
+        return res.status(404).json({ message: "Application not found." });
       }
 
       // 2. Verificamos si el usuario logueado es el dueño del Job relacionado
       if (foundApp.job.owner.toString() !== req.payload._id) {
-        return res.status(403).json({ message: "No tienes permiso para gestionar esta aplicación." });
+        return res.status(403).json({ message: "You do not have permission to manage this application." });
       }
 
       // 3. Si es el dueño, procedemos a actualizar
@@ -82,4 +83,5 @@ router.put("/applications/:id", isAuthenticated, isCompany, (req, res, next) => 
     .then((updatedApp) => res.status(200).json(updatedApp))
     .catch((err) => next(err));
 });
+
 module.exports = router;
