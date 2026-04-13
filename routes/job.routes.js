@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Job = require("../models/Job.model");
+const Application = require("../models/Application.model")
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const { isCompany, verifyJobOwnership } = require("../middleware/route-guard.middleware");
 
