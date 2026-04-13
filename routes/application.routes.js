@@ -49,7 +49,27 @@ router.get("/my-applications", isAuthenticated, isIronhacker, (req, res, next) =
     .catch((err) => next(err));
 });
 
-// 3. GET /api/jobs/:jobId/applications - Ver aplicantes de un Job concreto (como Empresa)
+// 3. GET /api/applications/:id - Ver detalle de una aplicación específica (Empresa)
+router.get("/applications/:id", isAuthenticated, isCompany, (req, res, next) => {
+  const { id } = req.params;
+
+  Application.findById(id)
+    .populate("applicant", "firstName lastName bootcamp portfolioUrl linkedinUrl logo email about campus")
+    .populate("job")
+    .then((foundApp) => {
+      if (!foundApp) {
+        return res.status(404).json({ message: "Application not found." });
+      }
+      // Verificación: Solo el dueño del job puede ver el detalle
+      if (foundApp.job.owner.toString() !== req.payload._id) {
+        return res.status(403).json({ message: "You do not have permission to view this application." });
+      }
+      res.status(200).json(foundApp);
+    })
+    .catch((err) => next(err));
+});
+
+// 4. GET /api/jobs/:jobId/applications - Ver aplicantes de un Job concreto (como Empresa)
 router.get("/jobs/:jobId/applications", isAuthenticated, isCompany, verifyJobOwnership, (req, res, next) => {
   const { jobId } = req.params;
 
@@ -59,7 +79,7 @@ router.get("/jobs/:jobId/applications", isAuthenticated, isCompany, verifyJobOwn
     .catch((err) => next(err));
 });
 
-// 4. PUT /api/applications/:id - Cambiar el estado de una application (Empresa)
+// 5. PUT /api/applications/:id - Cambiar el estado de una application (Empresa)
 router.put("/applications/:id", isAuthenticated, isCompany, (req, res, next) => {
   const { id } = req.params;
   const { status } = req.body;
