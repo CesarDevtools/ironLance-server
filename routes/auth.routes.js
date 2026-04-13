@@ -139,41 +139,34 @@ router.post("/login", (req, res, next) => {
 // PUT /auth/update - Actualiza los datos y genera un nuevo token
 router.put("/update", isAuthenticated, (req, res, next) => {
   const userId = req.payload._id;
+  const userRole = req.payload.role; 
   const {
-    firstName, 
-    lastName,
-    about, 
-    bootcamp,
-    campus,
-    portfolioUrl,
-    linkedinUrl, 
-    companyName, 
-    website,
-    logo, 
+    firstName, lastName, about, bootcamp, campus,
+    portfolioUrl, linkedinUrl, companyName, website, logo,
   } = req.body;
 
-  // 1. Actualizamos el usuario
-  User.findByIdAndUpdate(
-    userId,
-    {
-      firstName,
-      lastName,
-      about,
-      bootcamp,
-      campus,
-      portfolioUrl,
-      linkedinUrl,
-      companyName,
-      website,
-      logo,
-    },
-    { new: true, runValidators: true },
-  )
-    .then((updatedUser) => {
-      // 2. Extraemos los datos necesarios para el NUEVO payload
-      const { _id, email, role, firstName, companyName } = updatedUser;
+  // 1. Creamos un objeto con los campos comunes
+  let updateData = { about };
 
-      // 3. Creamos el nuevo payload 
+  // 2. Filtramos campos según el rol para evitar errores de validación
+  if (userRole === "IRONHACKER") {
+    updateData = { 
+      ...updateData, 
+      firstName, lastName, bootcamp, campus, portfolioUrl, linkedinUrl 
+    };
+  } else if (userRole === "COMPANY") {
+    updateData = { 
+      ...updateData, 
+      companyName, website, logo 
+    };
+  }
+
+  // 3. Actualizamos el usuario (solo con los campos permitidos)
+  User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true })
+    .select("-password")
+    .then((updatedUser) => {
+      // lógica de creación del nuevo payload y JWT
+      const { _id, email, role, firstName, companyName } = updatedUser;
       const payload = {
         _id,
         email,
@@ -181,13 +174,11 @@ router.put("/update", isAuthenticated, (req, res, next) => {
         name: role === "IRONHACKER" ? firstName : companyName,
       };
 
-      // 4. Firmamos el nuevo token
       const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
         algorithm: "HS256",
         expiresIn: "6h",
       });
 
-      // 5. Enviamos el nuevo token al frontend
       res.status(200).json({ authToken: authToken });
     })
     .catch((err) => next(err));
