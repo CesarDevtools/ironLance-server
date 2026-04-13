@@ -195,12 +195,16 @@ router.put("/update", isAuthenticated, (req, res, next) => {
 
 // GET  /auth/verify  -  Used to verify JWT stored on the client
 router.get("/verify", isAuthenticated, (req, res, next) => {
-  // If JWT token is valid the payload gets decoded by the
-  // isAuthenticated middleware and is made available on `req.payload`
-  console.log(`req.payload`, req.payload);
-
-  // Send back the token payload object containing the user data
-  res.status(200).json(req.payload);
+  // .select("-password") excluye el campo de los resultados
+  User.findById(req.payload._id)
+    .select("-password") 
+    .then((foundUser) => {
+      if (!foundUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.status(200).json(foundUser);
+    })
+    .catch((err) => next(err));
 });
 
 module.exports = router;
