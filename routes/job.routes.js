@@ -45,12 +45,20 @@ router.put("/jobs/:id", isAuthenticated, isCompany, verifyJobOwnership, (req, re
     .catch((err) => next(err));
 });
 
-// DELETE /api/jobs/:id - Borrar oferta (Solo Empresa Dueña)
+// DELETE /api/jobs/:id - Borrar oferta y sus aplicaciones (Solo Empresa Dueña)
 router.delete("/jobs/:id", isAuthenticated, isCompany, verifyJobOwnership, (req, res, next) => {
   const { id } = req.params;
 
-  Job.findByIdAndDelete(id)
-    .then(() => res.status(200).json({ message: "Oferta eliminada correctamente" }))
+  // borrar el Job y borrar todas sus Applications
+  Promise.all([
+    Job.findByIdAndDelete(id),
+    Application.deleteMany({ job: id })
+  ])
+    .then(() => {
+      res.status(200).json({ 
+        message: "Job offer and all associated applications deleted successfully." 
+      });
+    })
     .catch((err) => next(err));
 });
 
