@@ -152,7 +152,7 @@ router.put("/update", isAuthenticated, (req, res, next) => {
   if (userRole === "IRONHACKER") {
     updateData = { 
       ...updateData, 
-      firstName, lastName, bootcamp, campus, portfolioUrl, linkedinUrl 
+      firstName, lastName, bootcamp, campus, portfolioUrl, linkedinUrl, logo
     };
   } else if (userRole === "COMPANY") {
     updateData = { 
