@@ -3,14 +3,21 @@
 require("dotenv").config();
 
 // ℹ️ Connects to the database
-require("./db");
+const { connectDB } = require("./db");
 
 // Handles http requests (express is node js framework)
 // https://www.npmjs.com/package/express
 const express = require("express");
 
 const app = express();
-
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (e) {
+        next(e);
+    }
+});
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
 
