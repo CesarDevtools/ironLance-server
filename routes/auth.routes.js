@@ -143,6 +143,7 @@ router.put("/update", isAuthenticated, (req, res, next) => {
   const {
     firstName, lastName, about, bootcamp, campus,
     portfolioUrl, linkedinUrl, companyName, website, logo,
+    isPublic 
   } = req.body;
 
   // 1. Creamos un objeto con los campos comunes
@@ -152,7 +153,8 @@ router.put("/update", isAuthenticated, (req, res, next) => {
   if (userRole === "IRONHACKER") {
     updateData = { 
       ...updateData, 
-      firstName, lastName, bootcamp, campus, portfolioUrl, linkedinUrl, logo
+      firstName, lastName, bootcamp, campus, portfolioUrl, linkedinUrl, logo,
+      isPublic 
     };
   } else if (userRole === "COMPANY") {
     updateData = { 
