@@ -37,7 +37,7 @@ const jobSchema = new Schema(
     },
   },
   {
-    timestamps: true // Esto añade automáticamente createdAt y updatedAt
+    timestamps: true 
   }
 );
 
