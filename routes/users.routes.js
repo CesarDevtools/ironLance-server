@@ -19,7 +19,7 @@ router.get("/ironhackers", isAuthenticated, isCompany, (req, res, next) => {
 
 // GET /api/users/:userId
 // Obtiene los detalles de un usuario específico si es IRONHACKER
-router.get("/:userId", isAuthenticated, isCompany, (req, res, next) => {
+router.get("/:userId", isAuthenticated, (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
