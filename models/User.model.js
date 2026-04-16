@@ -14,6 +14,11 @@ const userSchema = new Schema({
     enum: ["IRONHACKER", "COMPANY"],
     required: true,
   },
+  // Campo de visibilidad para el board de Ironhackers
+  isPublic: {
+    type: Boolean,
+    default: false
+  },
   about: { 
     type: String, 
     maxLength: 3000

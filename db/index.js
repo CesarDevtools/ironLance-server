@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const MONGO_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/project-management-server";
+const MONGO_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/ironLance-server";
 
 async function connectDB() {
   if (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2) {
