@@ -58,13 +58,31 @@ ORIGIN=http://localhost:5173
 
 > **Database Setup:** You need a MongoDB instance running locally or use MongoDB Atlas. If using local MongoDB, make sure it's running before starting the server.
 
-### 4. (Optional) Seed the database
+### 4. Seed the database (Optional but recommended)
 
-If you want to populate the database with sample data:
+This project includes a `seeds.js` file that populates the database with sample data for testing purposes.
+
+**What the seed creates:**
+- **3 Companies:** Google, Meta, and Amazon (password: `Password123`)
+- **20 Ironhackers:** Sample students with profiles (password: `Password123`)
+- **30 Job Listings:** Various positions across the companies
+
+**To seed the database:**
 
 ```bash
 npm run seed
 ```
+
+> **Note:** Running the seed will **delete all existing data** and replace it with the sample data.
+
+**Test Accounts:**
+
+| Role | Email | Password |
+|------|-------|----------|
+| Company | `google@google.com` | `Password123` |
+| Company | `meta@meta.com` | `Password123` |
+| Company | `amazon@amazon.com` | `Password123` |
+| Ironhacker | `estudiante1@ironhackers.com` | `Password123` |
 
 ### 5. Run the application
 
